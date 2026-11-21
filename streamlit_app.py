@@ -32,9 +32,9 @@ def process_frame(frame_bgr, model, reader):
             coords = box.xyxy[0].tolist()
             x1, y1, x2, y2 = int(coords[0]), int(coords[1]), int(coords[2]), int(coords[3])
 
-            cls = int(box.cls[0].item())
+            cls = int(box.cls.item())
             name = model.names[cls]
-            conf = round(float(box.conf[0].item()) * 100, 1)
+            conf = round(float(box.conf.item()) * 100, 1)
 
             detected_any = True
             cv2.rectangle(frame_bgr, (x1, y1), (x2, y2), (0, 0, 255), 3)
@@ -120,8 +120,18 @@ if menu == "📷 Live Security Camera":
 
 elif menu == "📂 Browse Alert Files":
     st.subheader("Saved Alert Photos & Vehicle Logs")
-    if st.button("🔄 Refresh Files"):
-        st.rerun()
+    
+    col1, col2 = st.columns(2)
+    with col1:
+        if st.button("🔄 Refresh Files"):
+            st.rerun()
+    with col2:
+        if st.button("🗑️ Delete All Photos & Logs"):
+            for f in os.listdir(ALERT_FOLDER):
+                os.remove(os.path.join(ALERT_FOLDER, f))
+            st.success("All photos and logs deleted!")
+            time.sleep(1)
+            st.rerun()
 
     st.markdown("### 📋 Vehicle Number Plate Logs")
     log_path = os.path.join(ALERT_FOLDER, "vehicle_logs.txt")
